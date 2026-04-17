@@ -218,6 +218,32 @@
     }
   }
 
+  /* Fullscreen lightbox */
+  .lightbox {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.92);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+    cursor: zoom-out;
+  }
+  .lightbox.open {
+    display: flex;
+  }
+  .lightbox img {
+    max-width: 95vw;
+    max-height: 95vh;
+    object-fit: contain;
+    border-radius: 8px;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.6);
+  }
+
+  .image-wrap.revealed img {
+    cursor: zoom-in;
+  }
+
   /* Star burst on confirm */
   .burst {
     position: absolute;
@@ -312,6 +338,11 @@
 </div>
 
 <div class="card" id="main-card">
+
+  <!-- Fullscreen lightbox -->
+  <div class="lightbox" id="lightbox">
+    <img id="lightbox-img" src="" alt="">
+  </div>
 
   <!-- Game screen -->
   <div id="game-screen">
@@ -477,7 +508,6 @@
     // Reset image reveal, then preload after collapse animation (0.7s)
     const imgEl = document.getElementById('reveal-img');
     const wrapEl = document.getElementById('image-wrap');
-    imgEl.src = '';
     wrapEl.classList.remove('revealed');
     setTimeout(() => { imgEl.src = s.image; }, 700);
 
@@ -522,6 +552,19 @@
       document.getElementById('word-hint').style.display = 'none';
     }
   }
+
+  // Open lightbox when clicking revealed image
+  document.getElementById('image-wrap').addEventListener('click', () => {
+    if (!revealed) return;
+    const src = document.getElementById('reveal-img').src;
+    if (!src) return;
+    document.getElementById('lightbox-img').src = src;
+    document.getElementById('lightbox').classList.add('open');
+  });
+
+  document.getElementById('lightbox').addEventListener('click', () => {
+    document.getElementById('lightbox').classList.remove('open');
+  });
 
   // Tap anywhere on card (except buttons/image) advances words
   document.getElementById('game-screen').addEventListener('click', e => {

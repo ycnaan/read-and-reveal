@@ -1,5 +1,13 @@
 [  
   {
+    "text": "Chip and Wilf slept in a tent.",
+    "image": "images/wilf_tent.jpg"
+  },
+  {
+    "text": "The fox sat on a rock.",
+    "image": "images/fox_rock.jpg"
+  },
+  {
     "text": "The trucks go fast.",
     "image": "images/trucks_fast.jpg"
   },
