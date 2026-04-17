@@ -5,11 +5,15 @@
   },
   {
     "text": "The fox sat on a rock.",
-    "image": "images/fox_rock.jpg"
+    "image": "images/fox_rock.mp4"
   },
   {
     "text": "The trucks go fast.",
     "image": "images/trucks_fast.jpg"
+  },
+  {
+    "text": "The fan is on the desk.",
+    "image": "images/fan_desk.mp4"
   },
   {
     "text": "The small rock is in mud.",

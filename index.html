@@ -187,18 +187,19 @@
     max-height: 500px;
   }
 
-  .image-wrap img {
+  .image-wrap img,
+  .image-wrap video {
     width: 100%;
     max-height: 480px;
     object-fit: cover;
     display: block;
     transform: scale(1.08);
-    transition: transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
-    opacity: 0;
     transition: transform 0.8s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.5s ease 0.2s;
+    opacity: 0;
   }
 
-  .image-wrap.revealed img {
+  .image-wrap.revealed img,
+  .image-wrap.revealed video {
     transform: scale(1);
     opacity: 1;
   }
@@ -213,10 +214,14 @@
     .image-wrap.revealed {
       max-height: 600px;
     }
-    .image-wrap img {
+    .image-wrap img,
+    .image-wrap video {
       max-height: 580px;
     }
   }
+
+  .image-wrap.revealed img { cursor: zoom-in; }
+  .lightbox video { border-radius: 8px; max-width: 95vw; max-height: 95vh; }
 
   /* Fullscreen lightbox */
   .lightbox {
@@ -340,18 +345,14 @@
 <div class="card" id="main-card">
 
   <!-- Fullscreen lightbox -->
-  <div class="lightbox" id="lightbox">
-    <img id="lightbox-img" src="" alt="">
-  </div>
+  <div class="lightbox" id="lightbox"></div>
 
   <!-- Game screen -->
   <div id="game-screen">
     <div class="sentence" id="sentence-text">Loading…</div>
     <div class="word-hint" id="word-hint">tap or press space to read each word</div>
 
-    <div class="image-wrap" id="image-wrap">
-      <img id="reveal-img" src="" alt="Picture for the sentence">
-    </div>
+    <div class="image-wrap" id="image-wrap"></div>
 
     <button class="btn btn-confirm" id="btn-confirm">Well done! ✅</button>
     <button class="btn btn-reveal hidden" id="btn-reveal">Reveal the picture! 🎨</button>
@@ -505,11 +506,28 @@
     void el.offsetWidth;
     el.classList.add('entering');
 
-    // Reset image reveal, then preload after collapse animation (0.7s)
-    const imgEl = document.getElementById('reveal-img');
+    // Reset image/video reveal, then load after collapse animation (0.7s)
     const wrapEl = document.getElementById('image-wrap');
     wrapEl.classList.remove('revealed');
-    setTimeout(() => { imgEl.src = s.image; }, 700);
+    setTimeout(() => {
+      const isVideo = /\.(mp4|webm|ogg)$/i.test(s.image);
+      wrapEl.innerHTML = '';
+      if (isVideo) {
+        const v = document.createElement('video');
+        v.src = s.image;
+        v.autoplay = true;
+        v.loop = true;
+        v.muted = true;
+        v.playsInline = true;
+        v.id = 'reveal-media';
+        wrapEl.appendChild(v);
+      } else {
+        const img = document.createElement('img');
+        img.src = s.image;
+        img.id = 'reveal-media';
+        wrapEl.appendChild(img);
+      }
+    }, 700);
 
     // Reset buttons — confirm is locked until all words activated
     const confirmBtn = document.getElementById('btn-confirm');
@@ -553,17 +571,36 @@
     }
   }
 
-  // Open lightbox when clicking revealed image
+  // Open lightbox when clicking revealed media
   document.getElementById('image-wrap').addEventListener('click', () => {
     if (!revealed) return;
-    const src = document.getElementById('reveal-img').src;
-    if (!src) return;
-    document.getElementById('lightbox-img').src = src;
-    document.getElementById('lightbox').classList.add('open');
+    const media = document.getElementById('reveal-media');
+    if (!media || !media.src) return;
+    const lightbox = document.getElementById('lightbox');
+    lightbox.innerHTML = '';
+    if (media.tagName === 'VIDEO') {
+      const v = document.createElement('video');
+      v.src = media.src;
+      v.autoplay = true;
+      v.loop = true;
+      v.muted = true;
+      v.playsInline = true;
+      v.controls = true;
+      lightbox.appendChild(v);
+    } else {
+      const img = document.createElement('img');
+      img.src = media.src;
+      lightbox.appendChild(img);
+    }
+    lightbox.classList.add('open');
   });
 
   document.getElementById('lightbox').addEventListener('click', () => {
-    document.getElementById('lightbox').classList.remove('open');
+    const lightbox = document.getElementById('lightbox');
+    const v = lightbox.querySelector('video');
+    if (v) v.pause();
+    lightbox.classList.remove('open');
+    lightbox.innerHTML = '';
   });
 
   // Tap anywhere on card (except buttons/image) advances words
