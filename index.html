@@ -68,6 +68,29 @@
     transition: width 0.5s ease;
   }
 
+  .btn-shuffle {
+    margin-top: 8px;
+    background: none;
+    border: 2px solid rgba(26,26,46,0.15);
+    border-radius: 99px;
+    padding: 4px 14px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    color: rgba(26,26,46,0.4);
+    cursor: pointer;
+    transition: background 0.2s, border-color 0.2s, color 0.2s;
+  }
+  .btn-shuffle:hover {
+    border-color: var(--coral);
+    color: var(--coral);
+  }
+  .btn-shuffle.active {
+    background: var(--coral);
+    border-color: var(--coral);
+    color: #fff;
+  }
+
   .progress-label {
     font-size: 0.8rem;
     font-weight: 700;
@@ -340,6 +363,7 @@
     <div class="progress-bar-fill" id="progress-fill" style="width:0%"></div>
   </div>
   <div class="progress-label" id="progress-label">Sentence 1</div>
+  <button class="btn-shuffle" id="btn-shuffle">⇄ Shuffle</button>
 </div>
 
 <div class="card" id="main-card">
@@ -467,13 +491,35 @@
   // ─────────────────────────────────────────────────────────────────────────
 
   let sentences = [];
+  let originalSentences = [];
   let current = 0;
   let revealed = false;
+  let shuffled = false;
+
+  function shuffle(arr) {
+    const a = [...arr];
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
+
+  document.getElementById('btn-shuffle').addEventListener('click', () => {
+    shuffled = !shuffled;
+    document.getElementById('btn-shuffle').classList.toggle('active', shuffled);
+    sentences = shuffled ? shuffle(originalSentences) : [...originalSentences];
+    current = 0;
+    document.getElementById('done-screen').classList.add('hidden');
+    document.getElementById('game-screen').classList.remove('hidden');
+    showSentence();
+  });
 
   // Load sentences.json
   fetch('sentences.json')
     .then(r => r.json())
     .then(data => {
+      originalSentences = data;
       sentences = data;
       showSentence();
     })
