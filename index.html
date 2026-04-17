@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Read & Reveal</title>
+<link href="https://fonts.googleapis.com/css2?family=Andika:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --sky: #e8f4fd;
+    --sun: #f9c74f;
+    --coral: #f4845f;
+    --green: #52b788;
+    --dark: #1a1a2e;
+    --card: #ffffff;
+    --radius: 28px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Andika', sans-serif;
+    background: var(--sky);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 24px 16px;
+    background-image:
+      radial-gradient(circle at 10% 20%, rgba(249,199,79,0.15) 0%, transparent 40%),
+      radial-gradient(circle at 90% 80%, rgba(82,183,136,0.15) 0%, transparent 40%);
+  }
+
+  /* Header */
+  .header {
+    text-align: center;
+    margin-bottom: 16px;
+  }
+
+  .header h1 {
+    font-family: 'Andika', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    color: rgba(26,26,46,0.35);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    line-height: 1;
+  }
+
+  .header h1 span { color: rgba(244,132,95,0.5); }
+
+  .progress-bar-wrap {
+    margin-top: 12px;
+    background: rgba(0,0,0,0.08);
+    border-radius: 99px;
+    height: 8px;
+    width: 200px;
+    margin-left: auto;
+    margin-right: auto;
+    overflow: hidden;
+  }
+
+  .progress-bar-fill {
+    height: 100%;
+    background: var(--coral);
+    border-radius: 99px;
+    transition: width 0.5s ease;
+  }
+
+  .progress-label {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: rgba(26,26,46,0.4);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-top: 6px;
+  }
+
+  /* Main card */
+  .card {
+    background: var(--card);
+    border-radius: var(--radius);
+    padding: 40px 36px;
+    width: 100%;
+    max-width: 560px;
+    box-shadow:
+      0 2px 0 rgba(0,0,0,0.04),
+      0 8px 32px rgba(0,0,0,0.08),
+      0 24px 64px rgba(0,0,0,0.04);
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* Decorative corner dots */
+  .card::before {
+    content: '✦';
+    position: absolute;
+    top: 16px; right: 20px;
+    font-size: 1.2rem;
+    color: var(--sun);
+    opacity: 0.6;
+  }
+
+  /* Sentence display */
+  .sentence {
+    font-family: 'Andika', sans-serif;
+    font-size: 2rem;
+    font-weight: 600;
+    color: var(--dark);
+    line-height: 1.4;
+    margin-bottom: 36px;
+    min-height: 3em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 8px;
+  }
+
+  /* Buttons */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    border: none;
+    border-radius: 18px;
+    font-family: 'Andika', sans-serif;
+    font-weight: 800;
+    font-size: 1.1rem;
+    cursor: pointer;
+    padding: 16px 32px;
+    transition: transform 0.12s, box-shadow 0.12s, background 0.15s;
+    width: 100%;
+    margin-bottom: 12px;
+  }
+
+  .btn:active { transform: scale(0.97); }
+
+  .btn-confirm {
+    background: var(--green);
+    color: white;
+    box-shadow: 0 4px 0 #3a9068, 0 8px 24px rgba(82,183,136,0.3);
+  }
+
+  .btn-confirm:hover { background: #43a078; box-shadow: 0 4px 0 #2d7a55, 0 8px 24px rgba(82,183,136,0.4); }
+
+  .btn-reveal {
+    background: var(--sun);
+    color: var(--dark);
+    box-shadow: 0 4px 0 #d4a82a, 0 8px 24px rgba(249,199,79,0.4);
+    animation: wiggle 0.6s ease 0.1s both;
+  }
+
+  .btn-reveal:hover { background: #f7be35; }
+
+  .btn-next {
+    background: var(--coral);
+    color: white;
+    box-shadow: 0 4px 0 #c9623e, 0 8px 24px rgba(244,132,95,0.3);
+  }
+
+  .btn-next:hover { background: #e8734f; }
+
+  .btn-next.last { background: var(--dark); box-shadow: 0 4px 0 #000; }
+
+  @keyframes wiggle {
+    0%, 100% { transform: rotate(0deg); }
+    25% { transform: rotate(-2deg) scale(1.03); }
+    75% { transform: rotate(2deg) scale(1.03); }
+  }
+
+  /* Hidden by default */
+  .hidden { display: none !important; }
+
+  /* Image reveal container */
+  .image-wrap {
+    margin: 0 -36px 28px;
+    overflow: hidden;
+    max-height: 0;
+    transition: max-height 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+    position: relative;
+  }
+
+  .image-wrap.revealed {
+    max-height: 500px;
+  }
+
+  .image-wrap img {
+    width: 100%;
+    max-height: 480px;
+    object-fit: cover;
+    display: block;
+    transform: scale(1.08);
+    transition: transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+    opacity: 0;
+    transition: transform 0.8s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.5s ease 0.2s;
+  }
+
+  .image-wrap.revealed img {
+    transform: scale(1);
+    opacity: 1;
+  }
+
+  @media (min-width: 600px) {
+    .card {
+      max-width: 800px;
+    }
+    .image-wrap {
+      margin: 0 -48px 28px;
+    }
+    .image-wrap.revealed {
+      max-height: 600px;
+    }
+    .image-wrap img {
+      max-height: 580px;
+    }
+  }
+
+  /* Star burst on confirm */
+  .burst {
+    position: absolute;
+    pointer-events: none;
+    font-size: 2rem;
+    animation: burst-out 0.7s ease forwards;
+    z-index: 10;
+  }
+
+  @keyframes burst-out {
+    0% { transform: scale(0) translate(0,0); opacity: 1; }
+    100% { transform: scale(1.5) translate(var(--tx), var(--ty)); opacity: 0; }
+  }
+
+  /* Done screen */
+  #done-screen {
+    text-align: center;
+  }
+
+  .done-emoji {
+    font-size: 5rem;
+    display: block;
+    margin-bottom: 12px;
+    animation: bounce 0.6s ease infinite alternate;
+  }
+
+  @keyframes bounce {
+    from { transform: translateY(0); }
+    to { transform: translateY(-12px); }
+  }
+
+  .done-title {
+    font-family: 'Andika', sans-serif;
+    font-size: 2.2rem;
+    font-weight: 800;
+    color: var(--dark);
+    margin-bottom: 8px;
+  }
+
+  .done-sub {
+    color: rgba(26,26,46,0.5);
+    font-size: 1rem;
+    font-weight: 700;
+    margin-bottom: 28px;
+  }
+
+  /* Word-by-word coloring */
+  .sentence {
+    flex-wrap: wrap;
+    gap: 0.25em 0.5em;
+  }
+
+  .word {
+    display: inline-block;
+    color: rgba(26,26,46,0.2);
+    transition: color 0.25s ease;
+    cursor: default;
+  }
+
+  .word.active {
+    color: var(--dark);
+  }
+
+  /* Hint text */
+  .word-hint {
+    font-size: 0.78rem;
+    color: rgba(26,26,46,0.3);
+    letter-spacing: 0.5px;
+    margin-bottom: 20px;
+    margin-top: -20px;
+  }
+
+  /* Sentence entrance animation */
+  @keyframes slide-up {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .sentence.entering {
+    animation: slide-up 0.4s ease forwards;
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>Read <span>&</span> Reveal</h1>
+  <div class="progress-bar-wrap">
+    <div class="progress-bar-fill" id="progress-fill" style="width:0%"></div>
+  </div>
+  <div class="progress-label" id="progress-label">Sentence 1</div>
+</div>
+
+<div class="card" id="main-card">
+
+  <!-- Game screen -->
+  <div id="game-screen">
+    <div class="sentence" id="sentence-text">Loading…</div>
+    <div class="word-hint" id="word-hint">tap or press space to read each word</div>
+
+    <div class="image-wrap" id="image-wrap">
+      <img id="reveal-img" src="" alt="Picture for the sentence">
+    </div>
+
+    <button class="btn btn-confirm" id="btn-confirm">Well done! ✅</button>
+    <button class="btn btn-reveal hidden" id="btn-reveal">Reveal the picture! 🎨</button>
+    <button class="btn btn-next hidden" id="btn-next">Next sentence →</button>
+  </div>
+
+  <!-- Done screen -->
+  <div id="done-screen" class="hidden">
+    <span class="done-emoji">🌟</span>
+    <div class="done-title">Amazing reading!</div>
+    <div class="done-sub" id="done-sub">You read all the sentences!</div>
+    <button class="btn btn-confirm" onclick="restart()" style="margin-top:8px">Play again! 🔁</button>
+  </div>
+
+</div>
+
+<script>
+  // ── Audio Engine (Web Audio API — no external files needed) ──────────────
+  const AC = new (window.AudioContext || window.webkitAudioContext)();
+  function resumeAC() { if (AC.state === 'suspended') AC.resume(); }
+
+  // Soft click: short sine blip
+  function playClick() {
+    resumeAC();
+    const o = AC.createOscillator(), g = AC.createGain();
+    o.connect(g); g.connect(AC.destination);
+    o.frequency.setValueAtTime(600, AC.currentTime);
+    o.frequency.exponentialRampToValueAtTime(400, AC.currentTime + 0.06);
+    g.gain.setValueAtTime(0.18, AC.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001, AC.currentTime + 0.08);
+    o.start(); o.stop(AC.currentTime + 0.08);
+  }
+
+  // Fanfare: ascending chord arpeggio
+  function playFanfare() {
+    resumeAC();
+    const notes = [523, 659, 784, 1047]; // C5 E5 G5 C6
+    notes.forEach((freq, i) => {
+      const o = AC.createOscillator(), g = AC.createGain();
+      o.connect(g); g.connect(AC.destination);
+      o.type = 'triangle';
+      o.frequency.value = freq;
+      const t = AC.currentTime + i * 0.10;
+      g.gain.setValueAtTime(0, t);
+      g.gain.linearRampToValueAtTime(0.22, t + 0.04);
+      g.gain.exponentialRampToValueAtTime(0.001, t + 0.35);
+      o.start(t); o.stop(t + 0.35);
+    });
+    setTimeout(() => {
+      const o = AC.createOscillator(), g = AC.createGain();
+      o.connect(g); g.connect(AC.destination);
+      o.type = 'sine';
+      o.frequency.setValueAtTime(1800, AC.currentTime);
+      o.frequency.exponentialRampToValueAtTime(2400, AC.currentTime + 0.15);
+      g.gain.setValueAtTime(0.1, AC.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.001, AC.currentTime + 0.2);
+      o.start(); o.stop(AC.currentTime + 0.2);
+    }, 320);
+  }
+
+  // Magical reveal: shimmering harp glissando + sparkle dust
+  function playWhoosh() {
+    resumeAC();
+    const now = AC.currentTime;
+
+    // Harp glissando — rising arpeggio across two octaves
+    const harpNotes = [523, 659, 784, 988, 1175, 1319, 1568, 2093];
+    harpNotes.forEach((freq, i) => {
+      const o = AC.createOscillator();
+      const g = AC.createGain();
+      o.connect(g); g.connect(AC.destination);
+      o.type = 'sine';
+      o.frequency.value = freq;
+      const t = now + i * 0.07;
+      g.gain.setValueAtTime(0, t);
+      g.gain.linearRampToValueAtTime(0.15, t + 0.03);
+      g.gain.exponentialRampToValueAtTime(0.001, t + 0.5);
+      o.start(t); o.stop(t + 0.55);
+    });
+
+    // Sparkle dust — high random tinkles layered on top
+    for (let i = 0; i < 10; i++) {
+      const o = AC.createOscillator();
+      const g = AC.createGain();
+      o.connect(g); g.connect(AC.destination);
+      o.type = 'sine';
+      const freq = 2000 + Math.random() * 3000;
+      o.frequency.setValueAtTime(freq, now);
+      o.frequency.exponentialRampToValueAtTime(freq * 1.4, now + 0.3);
+      const t = now + Math.random() * 0.6;
+      g.gain.setValueAtTime(0, t);
+      g.gain.linearRampToValueAtTime(0.06, t + 0.02);
+      g.gain.exponentialRampToValueAtTime(0.001, t + 0.25);
+      o.start(t); o.stop(t + 0.3);
+    }
+
+    // Low soft shimmer pad underneath for warmth
+    const pad = AC.createOscillator();
+    const padG = AC.createGain();
+    pad.connect(padG); padG.connect(AC.destination);
+    pad.type = 'triangle';
+    pad.frequency.setValueAtTime(261, now);
+    pad.frequency.exponentialRampToValueAtTime(392, now + 0.8);
+    padG.gain.setValueAtTime(0, now);
+    padG.gain.linearRampToValueAtTime(0.08, now + 0.1);
+    padG.gain.exponentialRampToValueAtTime(0.001, now + 1.0);
+    pad.start(now); pad.stop(now + 1.1);
+  }
+
+  // Click sound on every button
+  document.addEventListener('click', e => { if (e.target.closest('.btn')) playClick(); });
+  // ─────────────────────────────────────────────────────────────────────────
+
+  let sentences = [];
+  let current = 0;
+  let revealed = false;
+
+  // Load sentences.json
+  fetch('sentences.json')
+    .then(r => r.json())
+    .then(data => {
+      sentences = data;
+      showSentence();
+    })
+    .catch(() => {
+      document.getElementById('sentence-text').textContent =
+        '⚠️ Could not load sentences.json — make sure it\'s in the same folder!';
+    });
+
+  let wordIndex = 0;
+  let wordEls = [];
+
+  function showSentence() {
+    revealed = false;
+    const s = sentences[current];
+
+    // Build word spans
+    const el = document.getElementById('sentence-text');
+    const words = s.text.split(' ');
+    el.innerHTML = '';
+    wordEls = words.map((w, i) => {
+      const span = document.createElement('span');
+      span.className = 'word' + (i === 0 ? ' active' : '');
+      span.textContent = w;
+      el.appendChild(span);
+      return span;
+    });
+    wordIndex = 1;
+
+    el.classList.remove('entering');
+    void el.offsetWidth;
+    el.classList.add('entering');
+
+    // Reset image reveal, then preload after collapse animation (0.7s)
+    const imgEl = document.getElementById('reveal-img');
+    const wrapEl = document.getElementById('image-wrap');
+    imgEl.src = '';
+    wrapEl.classList.remove('revealed');
+    setTimeout(() => { imgEl.src = s.image; }, 700);
+
+    // Reset buttons — confirm is locked until all words activated
+    const confirmBtn = document.getElementById('btn-confirm');
+    confirmBtn.classList.remove('hidden');
+    confirmBtn.disabled = true;
+    confirmBtn.style.opacity = '0.4';
+    confirmBtn.style.cursor = 'not-allowed';
+    document.getElementById('btn-reveal').classList.add('hidden');
+    document.getElementById('btn-next').classList.add('hidden');
+    document.getElementById('word-hint').style.display = 'block';
+
+    // Progress
+    const pct = (current / sentences.length) * 100;
+    document.getElementById('progress-fill').style.width = pct + '%';
+    document.getElementById('progress-label').textContent =
+      `Sentence ${current + 1} of ${sentences.length}`;
+  }
+
+  function activateNextWord() {
+    if (wordIndex >= wordEls.length) return;
+    // Play a soft per-word tick
+    resumeAC();
+    const o = AC.createOscillator(), g = AC.createGain();
+    o.connect(g); g.connect(AC.destination);
+    o.type = 'sine';
+    o.frequency.value = 440 + wordIndex * 40;
+    g.gain.setValueAtTime(0.12, AC.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001, AC.currentTime + 0.1);
+    o.start(); o.stop(AC.currentTime + 0.1);
+
+    wordEls[wordIndex].classList.add('active');
+    wordIndex++;
+
+    if (wordIndex === wordEls.length) {
+      // All words read — unlock confirm button
+      const confirmBtn = document.getElementById('btn-confirm');
+      confirmBtn.disabled = false;
+      confirmBtn.style.opacity = '1';
+      confirmBtn.style.cursor = 'pointer';
+      document.getElementById('word-hint').style.display = 'none';
+    }
+  }
+
+  // Tap anywhere on card (except buttons/image) advances words
+  document.getElementById('game-screen').addEventListener('click', e => {
+    if (e.target.closest('.btn') || e.target.closest('.image-wrap')) return;
+    activateNextWord();
+  });
+
+  document.addEventListener('keydown', e => {
+    if (e.code === 'Space') {
+      e.preventDefault();
+      activateNextWord();
+    }
+  });
+
+  // Parent confirms reading
+  document.getElementById('btn-confirm').addEventListener('click', (e) => {
+    if (document.getElementById('btn-confirm').disabled) return;
+    playFanfare();
+    spawnBursts(e);
+    document.getElementById('btn-confirm').classList.add('hidden');
+    document.getElementById('btn-reveal').classList.remove('hidden');
+  });
+
+  // Child reveals image
+  document.getElementById('btn-reveal').addEventListener('click', () => {
+    playWhoosh();
+    document.getElementById('image-wrap').classList.add('revealed');
+    revealed = true;
+    document.getElementById('btn-reveal').classList.add('hidden');
+
+    const isLast = current === sentences.length - 1;
+    const nextBtn = document.getElementById('btn-next');
+    nextBtn.classList.remove('hidden');
+    nextBtn.textContent = isLast ? 'Finish! 🎉' : 'Next sentence →';
+    if (isLast) nextBtn.classList.add('last');
+  });
+
+  // Next
+  document.getElementById('btn-next').addEventListener('click', () => {
+    current++;
+    if (current >= sentences.length) {
+      showDone();
+    } else {
+      showSentence();
+    }
+  });
+
+  function showDone() {
+    document.getElementById('game-screen').classList.add('hidden');
+    document.getElementById('done-screen').classList.remove('hidden');
+    document.getElementById('progress-fill').style.width = '100%';
+    document.getElementById('progress-label').textContent = 'All done!';
+    document.getElementById('done-sub').textContent =
+      `You read all ${sentences.length} sentences! 🎉`;
+  }
+
+  function restart() {
+    current = 0;
+    document.getElementById('done-screen').classList.add('hidden');
+    document.getElementById('game-screen').classList.remove('hidden');
+    showSentence();
+  }
+
+  // Confetti burst effect on confirm
+  function spawnBursts(e) {
+    const card = document.getElementById('main-card');
+    const rect = card.getBoundingClientRect();
+    const emojis = ['⭐', '✨', '🌟', '💛', '🎉'];
+    for (let i = 0; i < 6; i++) {
+      const el = document.createElement('div');
+      el.className = 'burst';
+      el.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+      const tx = (Math.random() - 0.5) * 160 + 'px';
+      const ty = -(40 + Math.random() * 80) + 'px';
+      el.style.setProperty('--tx', tx);
+      el.style.setProperty('--ty', ty);
+      el.style.left = (Math.random() * 80 + 10) + '%';
+      el.style.bottom = '60px';
+      card.appendChild(el);
+      setTimeout(() => el.remove(), 800);
+    }
+  }
+</script>
+</body>
+</html>

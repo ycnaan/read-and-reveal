@@ -1,0 +1,46 @@
+[  
+  {
+    "text": "The small rock is in mud.",
+    "image": "images/rock_mud.jpg"
+  },
+  {
+    "text": "A jar has red jam.",
+    "image": "images/jar_jam.jpg"
+  },
+  {
+    "text": "Romi and the Shark.",
+    "image": "images/romi_shark.jpg"
+  },
+  {
+    "text": "The black duck swims far.",
+    "image": "images/black_duck.jpg"
+  },  
+  {
+    "text": "Gili wants a pink rock.",
+    "image": "images/gili_rock.jpg"
+  },
+  {
+    "text": "Omer has a red ball.",
+    "image": "images/omer_red_ball_2.jpg"
+  },
+  {
+    "text": "The sun is hot.",
+    "image": "images/04.jpg"
+  },
+  {
+    "text": "The cat sat on the mat.",
+    "image": "images/01.jpg"
+  },
+  {
+    "text": "A big dog ran in the park.",
+    "image": "images/02.png"
+  },
+  {
+    "text": "The fish is in the pond.",
+    "image": "images/03.png"
+  },
+  {
+    "text": "Ziv has a black hat.",
+    "image": "images/05.jpg"
+  }
+]
