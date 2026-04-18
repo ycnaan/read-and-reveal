@@ -617,6 +617,18 @@
     }
   }
 
+  function deactivatePreviousWord() {
+    if (wordIndex <= 1) return;
+    wordIndex--;
+    wordEls[wordIndex].classList.remove('active');
+
+    const confirmBtn = document.getElementById('btn-confirm');
+    confirmBtn.disabled = true;
+    confirmBtn.style.opacity = '0.4';
+    confirmBtn.style.cursor = 'not-allowed';
+    document.getElementById('word-hint').style.display = 'block';
+  }
+
   // Open lightbox when clicking revealed media
   document.getElementById('image-wrap').addEventListener('click', () => {
     if (!revealed) return;
@@ -656,9 +668,13 @@
   });
 
   document.addEventListener('keydown', e => {
-    if (e.code === 'Space') {
+    if (e.code === 'Space' || e.code === 'ArrowRight') {
       e.preventDefault();
       activateNextWord();
+    }
+    if (e.code === 'ArrowLeft') {
+      e.preventDefault();
+      deactivatePreviousWord();
     }
   });
 
