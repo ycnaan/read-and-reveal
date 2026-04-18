@@ -1,5 +1,13 @@
 [  
   {
+    "text": "The car hit a wall.",
+    "image": "images/car_hit_wall.jpg"
+  },
+  {
+    "text": "A frog sits on a log.",
+    "image": "images/frog_log.jpg"
+  },
+  {
     "text": "Chip and Wilf slept in a tent.",
     "image": "images/wilf_tent.jpg"
   },
