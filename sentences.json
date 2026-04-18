@@ -1,4 +1,8 @@
-[  
+[
+  {
+    "text": "A bird is singing.",
+    "image": "images/bird_singing.png"
+  },
   {
     "text": "The car hit a wall.",
     "image": "images/car_hit_wall.jpg"
